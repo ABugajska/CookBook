@@ -7,11 +7,28 @@
     <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
     <script type="text/javascript" src="bower_components/underscore/underscore.js"></script>
     <script type="text/javascript" src="bower_components/backbone/backbone.js"></script>
+    <script type="text/javascript" src="main.js"></script>
     <link rel="stylesheet" href="main.css">
     <link rel="stylesheet" href="bower_components/semantic-ui/dist/semantic.css">
 
 </head>
 <body>
-    <script type="text/template" id="recipes-list">  </script>
+
+    <div id="list-content"></div>
+
+    <div id="recipe-description"> </div>
+
+
+    <script type="text/template" id="cook-book-tpl">
+        <a href='#recipes/<%= id %>'> <%= title %> </a>
+
+    </script>
+
+    <script type="text/template" id="single-recipe-description-tpl">
+        <label>Title</label>
+        <input type="text" id="name" name="name" value="<%= title %>" required/>
+
+    </script>
+
 </body>
 </html>

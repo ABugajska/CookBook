@@ -1,3 +1,4 @@
+jQuery(function() {
 // CookBook array //
 
 var RecipeList = [
@@ -7,6 +8,7 @@ var RecipeList = [
             "tomatos",
             "onion",
             "carrot"],
+        id: 1
 
 
     },
@@ -32,9 +34,13 @@ var RecipeList = [
 ];
 
 
+
+
 // MODEL //
 
 var singleRecipe = Backbone.Model.extend();
+
+
 
 
 // COLLECTION //
@@ -48,27 +54,55 @@ var recipeList = new cookBook(RecipeList);
 
 
 
+
+
 // VIEWS //
 
+
+// RECIPES LIST VIEW //
 var CookBookView = Backbone.View.extend({
 
-    el: '.main',
+    tagName: 'ul',
 
-    initialize: function (){
-        this.render();
-
+    initialize: function () {
+        this.model.bind("reset", this.render, this);
     },
 
-    render: function(){
+    render: function (eventName) {
+        _.each(this.model.models, function (recipe) {
+            $(this.el).append(new CookBookRecipeView({model: recipe}).render().el);
+        }, this);
+        return this;
+    }
 
-        var CookBookViewTpl = _.template($('#recipes-list').html(), {recipeList: recipeList.models});
-        $('.main').html(CookBookViewTpl);
+});
 
+// SINGLE RECIPE VIEW //
+
+var CookBookRecipeView = Backbone.View.extend({
+
+    tagName: 'li',
+
+    template: _.template($('#cook-book-tpl').html()),
+
+    render: function (eventName) {
+        $(this.el).html(this.template(this.model.toJSON()));
+        return this;
     }
 
 
+});
 
+// SINGLE RECIPE DESCRIPTION VIEW //
 
+var SingleRecipeView = Backbone.View.extend({
+
+    template: _.template($('#single-recipe-description-tpl').html()),
+
+    render: function (eventName) {
+        $(this.el).html(this.template(this.model.toJSON()));
+        return this;
+    }
 
 });
 
@@ -80,17 +114,29 @@ var CookBookView = Backbone.View.extend({
 var AppRouter = Backbone.Router.extend({
 
     routes: {
-        "": "index"
+        "": "index",
+        "recipes/:id": "singleRecipeDescription"
 
     },
 
     index: function() {
+        this.recipeList = new cookBook();
+        this.cookBookView = new CookBookView({model: recipeList});
+        $('#list-content').html(this.cookBookView.render().el);
 
+
+    },
+
+    singleRecipeDescription: function(id){
+        this.recipe = recipeList.get(id);
+        this.singleRecipeView = new SingleRecipeView({model: this.recipe});
+        $('#recipe-description').html(this.singleRecipeView.render().el);
 
     }
 
 
 });
-
 var app = new AppRouter();
-Backbone.history.start();
+
+    Backbone.history.start();
+});
