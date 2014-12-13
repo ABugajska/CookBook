@@ -13,22 +13,34 @@
 
 </head>
 <body>
+    <div class="ui grid">
+        <div class="four wide column" id="list-content"></div>
 
-    <div id="list-content"></div>
-
-    <div id="recipe-description"> </div>
+        <div class="four wide column" id="recipe-description"> </div>
 
 
-    <script type="text/template" id="cook-book-tpl">
-        <a href='#recipes/<%= id %>'> <%= title %> </a>
+        <script type="text/template" id="cook-book-tpl">
+            <a href='#recipes/<%= id %>'> <%= title %> </a>
 
-    </script>
 
-    <script type="text/template" id="single-recipe-description-tpl">
-        <label>Title</label>
-        <input type="text" id="name" name="name" value="<%= title %>" required/>
+        </script>
 
-    </script>
+        <script type="text/template" id="single-recipe-description-tpl">
+            <div class="ui input">
+                <label>Difficulty</label>
+                <input type="text" id="difficulty" name="difficulty" value="<%= difficulty %>" required/>
+            </div>
+            <div class="ui input">
+                <label>Ingredients</label>
+                <input type="text" id="ingredients" name="ingredients" value="<%= ingredients %>" required/>
+            </div>
+            <div class="buttons">
+                <button class="ui button primary">Add</button>
+                <button class="ui button secondary">Edit</button>
 
+            </div>
+
+        </script>
+    </div>
 </body>
 </html>

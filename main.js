@@ -62,10 +62,13 @@ var recipeList = new cookBook(RecipeList);
 // RECIPES LIST VIEW //
 var CookBookView = Backbone.View.extend({
 
-    tagName: 'ul',
+    tagName: 'ol',
 
     initialize: function () {
         this.model.bind("reset", this.render, this);
+        this.model.bind("add", function(recipe){
+            $(self.el).append(new CookBookRecipeView({model: recipe}).render().el);
+        })
     },
 
     render: function (eventName) {
@@ -115,8 +118,9 @@ var AppRouter = Backbone.Router.extend({
 
     routes: {
         "": "index",
-        "recipes/:id": "singleRecipeDescription"
-
+        "recipes/:id": "singleRecipeDescription",
+        "edit/:id": "editRecipe",
+        'add': 'addRecipe'
     },
 
     index: function() {
@@ -138,5 +142,5 @@ var AppRouter = Backbone.Router.extend({
 });
 var app = new AppRouter();
 
-    Backbone.history.start();
+Backbone.history.start();
 });
