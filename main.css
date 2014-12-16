@@ -12,3 +12,12 @@ li {
 .buttons {
     margin-top: 20px;
 }
+
+#recipe-description {
+    border-left: 1px solid black;
+}
+
+.ui.input {
+    width: 300px;
+    margin-bottom: 10px;
+}

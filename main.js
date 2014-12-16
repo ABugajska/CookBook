@@ -69,6 +69,7 @@ var CookBookView = Backbone.View.extend({
         this.model.bind("add", function(recipe){
             $(self.el).append(new CookBookRecipeView({model: recipe}).render().el);
         })
+
     },
 
     render: function (eventName) {
@@ -84,15 +85,20 @@ var CookBookView = Backbone.View.extend({
 
 var CookBookRecipeView = Backbone.View.extend({
 
+
     tagName: 'li',
 
     template: _.template($('#cook-book-tpl').html()),
+
+    initialize: function() {
+        this.render();
+
+    },
 
     render: function (eventName) {
         $(this.el).html(this.template(this.model.toJSON()));
         return this;
     }
-
 
 });
 
@@ -109,6 +115,76 @@ var SingleRecipeView = Backbone.View.extend({
 
 });
 
+// EDIT ITEM VIEW //
+
+var EditRecipeView = Backbone.View.extend({
+
+    events: {
+      'click [data-action=edit]': 'onEdit'
+
+    },
+
+    el: '#recipe-description',
+
+    template: _.template($('#edit-recipe').html()),
+
+    initialize: function() {
+        this.render();
+    },
+
+    render: function (eventName) {
+        $(this.el).html(this.template(this.model.toJSON()));
+        return this;
+    },
+
+    onEdit: function(event){
+        event.preventDefault();
+        this.model.set({
+            difficulty: this.$("input[name='difficulty']").val(),
+            ingredients: this.$("input[name='ingredients']").val()
+
+        })
+
+
+    }
+
+
+});
+
+//  ADD ITEM VIEW  //
+
+var AddRecipeView = Backbone.View.extend({
+
+    events: {
+        'click[data-action=add]':"onAdd"
+    },
+
+    el: '#recipe-description',
+
+    template: _.template($('#add-recipe').html()),
+
+    initialize: function() {
+        this.render();
+    },
+
+    render: function (eventName) {
+        $(this.el).html(this.template(this.model.toJSON()));
+        return this;
+    },
+
+    onAdd: function(event){
+        event.preventDefault();
+        this.collection.add({
+            title: this.$("li").val(),
+            difficulty: this.$("input[name='difficulty']").val(),
+            ingredients: this.$("input[name='ingredients']").val()
+        })
+
+    }
+});
+
+
+
 
 
 // ROUTES //
@@ -124,9 +200,7 @@ var AppRouter = Backbone.Router.extend({
     },
 
     index: function() {
-        this.recipeList = new cookBook();
-        this.cookBookView = new CookBookView({model: recipeList});
-        $('#list-content').html(this.cookBookView.render().el);
+
 
 
     },
@@ -136,6 +210,22 @@ var AppRouter = Backbone.Router.extend({
         this.singleRecipeView = new SingleRecipeView({model: this.recipe});
         $('#recipe-description').html(this.singleRecipeView.render().el);
 
+    },
+
+    addRecipe: function(){
+        var newRecipe = new AddRecipeView({
+            model: new singleRecipe,
+            collection: recipeList
+        });
+
+    },
+
+    editRecipe: function(id){
+        var model = recipeList.get(id);
+        var editRecipe = new EditRecipeView({
+           model: model
+        });
+
     }
 
 
@@ -143,4 +233,7 @@ var AppRouter = Backbone.Router.extend({
 var app = new AppRouter();
 
 Backbone.history.start();
+
+var cookBookView = new CookBookView({model: recipeList});
+$('#list-content').html(cookBookView.render().el);
 });
