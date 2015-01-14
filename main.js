@@ -1,58 +1,34 @@
 jQuery(function() {
 // CookBook array //
 
-var RecipeList = [
-    {title: "tomato soup",
-        difficulty: "simple",
-        ingredients: [
-            "tomatos",
-            "onion",
-            "carrot"],
-        id: 1
-
-
-    },
-    {title: "pea soup",
-        difficulty: "simple",
-        ingredients: [
-            "peas",
-            "onion",
-            "potatos"],
-        id: 2
-
-    },
-    {title: "dumplings",
-        difficulty: "tough",
-        ingredients:[
-            "pastry",
-            "pot cheese",
-            "eggs"],
-        id: 3
-    }
-
-
-];
-
-
+var recipeStorage = new Backbone.LocalStorage("cookBook");
+// localStorage: Recipestorage
 
 
 // MODEL //
 
-var singleRecipe = Backbone.Model.extend();
+var SingleRecipe = Backbone.Model.extend({
+    localStorage: recipeStorage
+});
 
 
 
 
 // COLLECTION //
 
-var cookBook = Backbone.Collection.extend({
-   model: singleRecipe
-
+var CookBook = Backbone.Collection.extend({
+    localStorage: recipeStorage,
+    model: SingleRecipe
 });
 
-var recipeList = new cookBook(RecipeList);
+window.recipeList = new CookBook();
 
-
+// So this is hint from Maciek
+/* 
+    Idea for communication between compontents of the app: a common event bus.
+    PubSub pattern.
+*/
+var vent = _.extend({}, Backbone.Events); // this copies Backbone.Events object into vent
 
 
 
@@ -65,19 +41,37 @@ var CookBookView = Backbone.View.extend({
     tagName: 'ol',
 
     initialize: function () {
-        this.model.bind("reset", this.render, this);
         this.model.bind("add", function(recipe){
-            $(self.el).append(new CookBookRecipeView({model: recipe}).render().el);
-        })
+            $(this.el).append(new CookBookRecipeView({model: recipe}).render().el);
+        }, this);
 
+        // #1. Destroying a model triggers 'destroy' model on all collections containing this model
+        this.model.bind("destroy", this.onAfterRemove, this);
     },
 
     render: function (eventName) {
-        _.each(this.model.models, function (recipe) {
-            $(this.el).append(new CookBookRecipeView({model: recipe}).render().el);
-        }, this);
         return this;
+    },
+
+    onAfterRemove: function () {
+        var url;
+
+        // #2 check if there are models in the collection
+        if (this.model.length > 0) {
+            // #3. Get a url of the first link on the list (we don't need hash so remove it) 
+            url = this.$('a').first().attr('href').replace('#', ''); // backbone url
+        } else {
+            // #4. if collection is empty, go to 'index' page
+            url = '';
+        }
+
+        // #5. navigate to set url and execute it's handler
+        app.navigate(url, { trigger: true })
+
+        
+        
     }
+
 
 });
 
@@ -85,33 +79,51 @@ var CookBookView = Backbone.View.extend({
 
 var CookBookRecipeView = Backbone.View.extend({
 
-
     tagName: 'li',
-
     template: _.template($('#cook-book-tpl').html()),
-
     initialize: function() {
         this.render();
-
+        this.model.bind('destroy', function() {
+            this.$el.remove();
+        }, this);
     },
 
     render: function (eventName) {
         $(this.el).html(this.template(this.model.toJSON()));
         return this;
     }
-
 });
 
 // SINGLE RECIPE DESCRIPTION VIEW //
 
 var SingleRecipeView = Backbone.View.extend({
-
     template: _.template($('#single-recipe-description-tpl').html()),
+
+     events: {
+        "click #remove" : 'onRemove'
+    },
 
     render: function (eventName) {
         $(this.el).html(this.template(this.model.toJSON()));
         return this;
+    },
+
+    onRemove: function(event) {
+        event.preventDefault();
+        var self;
+
+        self = this;
+        $.when(this.model.destroy()).then(function() {
+            // what
+
+            // PubSub - publishing an event
+            // after destroying a model this view publishes recipe:remove event
+            vent.trigger("recipe:remove", self.model); 
+        });
     }
+
+
+
 
 });
 
@@ -125,30 +137,22 @@ var EditRecipeView = Backbone.View.extend({
     },
 
     el: '#recipe-description',
-
     template: _.template($('#edit-recipe').html()),
 
     initialize: function() {
         this.render();
     },
-
     render: function (eventName) {
         $(this.el).html(this.template(this.model.toJSON()));
         return this;
     },
-
     onEdit: function(event){
         event.preventDefault();
         this.model.set({
             difficulty: this.$("input[name='difficulty']").val(),
             ingredients: this.$("input[name='ingredients']").val()
-
-        })
-
-
+        }).save();
     }
-
-
 });
 
 //  ADD ITEM VIEW  //
@@ -156,7 +160,7 @@ var EditRecipeView = Backbone.View.extend({
 var AddRecipeView = Backbone.View.extend({
 
     events: {
-        'click[data-action=add]':"onAdd"
+        'click [data-action=add]':"onAdd"
     },
 
     el: '#recipe-description',
@@ -174,17 +178,17 @@ var AddRecipeView = Backbone.View.extend({
 
     onAdd: function(event){
         event.preventDefault();
-        this.collection.add({
-            title: this.$("li").val(),
+        this.model.set({
+            title: this.$("input[name='title']").val(),
             difficulty: this.$("input[name='difficulty']").val(),
             ingredients: this.$("input[name='ingredients']").val()
-        })
-
+        });
+        var that = this;
+        $.when(this.model.save()).then(function(){
+            that.collection.add(that.model);
+        });
     }
 });
-
-
-
 
 
 // ROUTES //
@@ -199,11 +203,13 @@ var AppRouter = Backbone.Router.extend({
         'add': 'addRecipe'
     },
 
-    index: function() {
-
-
-
+    index: function(){
+        var cookBookView = new CookBookView({model: recipeList});
+        recipeList.fetch();
+        $('#list-content').html(cookBookView.render().el);
+        $('#recipe-description').empty();
     },
+
 
     singleRecipeDescription: function(id){
         this.recipe = recipeList.get(id);
@@ -214,7 +220,7 @@ var AppRouter = Backbone.Router.extend({
 
     addRecipe: function(){
         var newRecipe = new AddRecipeView({
-            model: new singleRecipe,
+            model: new SingleRecipe,
             collection: recipeList
         });
 
@@ -234,6 +240,5 @@ var app = new AppRouter();
 
 Backbone.history.start();
 
-var cookBookView = new CookBookView({model: recipeList});
-$('#list-content').html(cookBookView.render().el);
+
 });

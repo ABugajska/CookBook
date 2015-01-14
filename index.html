@@ -7,6 +7,7 @@
     <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
     <script type="text/javascript" src="bower_components/underscore/underscore.js"></script>
     <script type="text/javascript" src="bower_components/backbone/backbone.js"></script>
+    <script type="text/javascript" src="bower_components/backbone.localStorage/backbone.localStorage.js"></script>
     <script type="text/javascript" src="main.js"></script>
     <link rel="stylesheet" href="main.css">
     <link rel="stylesheet" href="bower_components/semantic-ui/dist/semantic.css">
@@ -15,14 +16,18 @@
 <body>
 
     <div class="ui grid">
-        <div class="four wide column" id="list-content"></div>
+        <div class="four wide column" id="list-content">
+            
+        </div> 
+        <a href="#add" class="ui button primary">Add new recipe</a>
 
         <script type="text/template" id="cook-book-tpl">
             <a href='#recipes/<%= id %>'> <%= title %> </a>
+            
 
         </script>
 
-        <div class="four wide column" id="recipe-description"> </div>
+        <div class="five wide column" id="recipe-description"> </div>
 
             <script type="text/template" id="single-recipe-description-tpl">
                 <div class="ui input">
@@ -37,6 +42,7 @@
 
                     <a href="#add" class="ui button primary">Add new recipe</a>
                     <a href="#edit/<%= id %>"  class="ui button secondary">Edit</a>
+                    <button id="remove" class="ui button primary">Delete</button>
 
                 </div>
 
@@ -54,7 +60,7 @@
             <input type="text" id="ingredients" name="ingredients" value="<%= ingredients %>" required/>
         </div>
         <button data-action='edit' class="ui button primary">Save</button>
-        <button data-action='remove' class="ui button primary">Delete</button>
+        
 
     </script>
 
@@ -72,7 +78,7 @@
             <label>Ingredients</label>
             <input type="text" id="ingredients" name="ingredients" value="" required/>
         </div>
-        <button data-action='edit' class="ui button primary">Save</button>
+        <button data-action='add' class="ui button primary">Save</button>
 
     </script>
 
