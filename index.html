@@ -8,6 +8,7 @@
     <script type="text/javascript" src="bower_components/underscore/underscore.js"></script>
     <script type="text/javascript" src="bower_components/backbone/backbone.js"></script>
     <script type="text/javascript" src="bower_components/backbone.localStorage/backbone.localStorage.js"></script>
+    <script type="text/javascript" src="bower_components/backbone-validation/dist/backbone-validation.js"></script>
     <script type="text/javascript" src="main.js"></script>
     <link rel="stylesheet" href="main.css">
     <link rel="stylesheet" href="bower_components/semantic-ui/dist/semantic.css">
@@ -18,9 +19,10 @@
     <div class="ui grid">
         <div class="four wide column" id="list-content">
             
-        </div> 
-        <a href="#add" class="ui button primary">Add new recipe</a>
-
+        </div>
+        <div class="three wide column"> 
+            <a href="#add" class="ui button primary">Add new recipe</a>
+        </div>
         <script type="text/template" id="cook-book-tpl">
             <a href='#recipes/<%= id %>'> <%= title %> </a>
             
@@ -51,35 +53,37 @@
     </div>
 
     <script type="text/template" id="edit-recipe">
-        <div class="ui input">
-            <label>Difficulty</label>
-            <input type="text" id="difficulty" name="difficulty" value="<%= difficulty %>" required/>
-        </div>
-        <div class="ui input">
-            <label>Ingredients</label>
-            <input type="text" id="ingredients" name="ingredients" value="<%= ingredients %>" required/>
-        </div>
-        <button data-action='edit' class="ui button primary">Save</button>
-        
-
+        <form>
+            <div class="ui input">
+                <label>Difficulty</label>
+                <input type="text" id="difficulty" name="difficulty" value="<%= difficulty %>" required/>
+            </div>
+            <div class="ui input">
+                <label>Ingredients</label>
+                <input type="text" id="ingredients" name="ingredients" value="<%= ingredients %>" required/>
+            </div>
+            <button data-action='edit' class="ui button primary">Save</button>
+            
+        </form>
     </script>
 
     <script type="text/template" id="add-recipe">
-        <div class="ui input">
-            <label>Title</label>
-            <input type="text" id="title" name="title" value="" required/>
-        </div>
+        <form>
+            <div class="ui input">
+                <label>Title</label>
+                <input type="text" id="title" name="title" value="" required/>
+            </div>
 
-        <div class="ui input">
-            <label>Difficulty</label>
-            <input type="text" id="difficulty" name="difficulty" value="" required/>
-        </div>
-        <div class="ui input">
-            <label>Ingredients</label>
-            <input type="text" id="ingredients" name="ingredients" value="" required/>
-        </div>
-        <button data-action='add' class="ui button primary">Save</button>
-
+            <div class="ui input">
+                <label>Difficulty</label>
+                <input type="text" id="difficulty" name="difficulty" value="" required/>
+            </div>
+            <div class="ui input">
+                <label>Ingredients</label>
+                <input type="text" id="ingredients" name="ingredients" value="" required/>
+            </div>
+            <button data-action='add' class="ui button primary">Save</button>
+        </form>
     </script>
 
 </body>

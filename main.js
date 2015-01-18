@@ -1,6 +1,5 @@
 jQuery(function() {
 // CookBook array //
-
 var recipeStorage = new Backbone.LocalStorage("cookBook");
 // localStorage: Recipestorage
 
@@ -8,9 +7,27 @@ var recipeStorage = new Backbone.LocalStorage("cookBook");
 // MODEL //
 
 var SingleRecipe = Backbone.Model.extend({
-    localStorage: recipeStorage
-});
+    localStorage: recipeStorage,
+    validation: {
+        title: {
+            required: true,
+            minLength: 3,
+            msg: 'enter a name of a dish'
+            
+        },
+        difficulty: {
+            required: true,
+            oneOf: ['easy', 'normal', 'hard'],
+            msg: 'The dish is easy/normal/hard to make?'
+        },
+        igredients: {
+            required: true,
+            minLength: 3
+        }
 
+
+    }
+});
 
 
 
@@ -66,7 +83,7 @@ var CookBookView = Backbone.View.extend({
         }
 
         // #5. navigate to set url and execute it's handler
-        app.navigate(url, { trigger: true })
+        app.navigate(url, { trigger: true });
 
         
         
