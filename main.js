@@ -59,15 +59,21 @@ var CookBookView = Backbone.View.extend({
     tagName: 'ol',
 
     initialize: function () {
-        this.model.bind("add", function(recipe){
+        this.collection.bind("add", function(recipe){
             $(this.el).append(new CookBookRecipeView({model: recipe}).render().el);
         }, this);
 
         // #1. Destroying a model triggers 'destroy' model on all collections containing this model
-        this.model.bind("destroy", this.onAfterRemove, this);
+        this.collection.bind("destroy", this.onAfterRemove, this);
+        vent.on('recipe:favourite', this.render, this);
     },
 
     render: function (eventName) {
+        var self = this;
+        this.$el.empty();
+        this.collection.each(function (model) {
+            $(self.el).append(new CookBookRecipeView({model: model}).render().el);
+        });
         return this;
     },
 
@@ -75,7 +81,7 @@ var CookBookView = Backbone.View.extend({
         var url;
 
         // #2 check if there are models in the collection
-        if (this.model.length > 0) {
+        if (this.collection.length > 0) {
             // #3. Get a url of the first link on the list (we don't need hash so remove it) 
             url = this.$('a').first().attr('href').replace('#', ''); // backbone url
         } else {
@@ -104,6 +110,9 @@ var CookBookRecipeView = Backbone.View.extend({
 
     render: function (eventName) {
         $(this.el).html(this.template(this.model.toJSON()));
+        if (this.model.get('favourite')){
+            this.$el.addClass('favourite');
+        }
         return this;
     }
 
@@ -141,8 +150,17 @@ var SingleRecipeView = Backbone.View.extend({
 
     addFav: function(event) {
         event.preventDefault();
-        $('#list-content li').addClass('favourite');
+
+        var itemId = $(event.currentTarget).attr('data-item');
+        this.model.set('favourite', !this.model.get('favourite'));
+        $.when(this.model.save()).then(function () {
+            vent.trigger("recipe:favourite", this.model);
+        }.bind(this));
+        
+
+        
     }
+    
 
 
 
@@ -227,17 +245,30 @@ var AppRouter = Backbone.Router.extend({
     },
 
     index: function(){
-        var cookBookView = new CookBookView({model: recipeList});
-        recipeList.fetch();
-        $('#list-content').html(cookBookView.render().el);
-        $('#recipe-description').empty();
+        var promise = recipeList.fetch({ reset: true });
+
+        return promise.then(function () {
+            var cookBookView = new CookBookView({collection: recipeList});
+            $('#list-content').html(cookBookView.render().el);
+            $('#recipe-description').empty();
+        });
+         
     },
 
 
     singleRecipeDescription: function(id){
-        this.recipe = recipeList.get(id);
-        this.singleRecipeView = new SingleRecipeView({model: this.recipe});
-        $('#recipe-description').html(this.singleRecipeView.render().el);
+        this.index().then(function () {
+            var recipe = recipeList.get(id);
+        
+            if (!recipe) {
+                recipe = new SingleRecipe({id: id});
+            }
+            $.when(recipe.fetch()).then(function(){
+                var singleRecipeView = new SingleRecipeView({model: recipe});
+                $('#recipe-description').html(singleRecipeView.render().el);
+            });
+        });
+        
 
     },
 
