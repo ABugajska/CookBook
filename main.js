@@ -28,6 +28,7 @@ var SingleRecipe = Backbone.Model.extend({
 
     }
 });
+// _.extend(Backbone.Model.prototype, Backbone.Validation.mixin);
 
 
 
@@ -84,11 +85,7 @@ var CookBookView = Backbone.View.extend({
 
         // #5. navigate to set url and execute it's handler
         app.navigate(url, { trigger: true });
-
-        
-        
     }
-
 
 });
 
@@ -109,6 +106,8 @@ var CookBookRecipeView = Backbone.View.extend({
         $(this.el).html(this.template(this.model.toJSON()));
         return this;
     }
+
+
 });
 
 // SINGLE RECIPE DESCRIPTION VIEW //
@@ -117,7 +116,8 @@ var SingleRecipeView = Backbone.View.extend({
     template: _.template($('#single-recipe-description-tpl').html()),
 
      events: {
-        "click #remove" : 'onRemove'
+        "click #remove" : 'onRemove',
+        "click #fav": 'addFav'
     },
 
     render: function (eventName) {
@@ -137,6 +137,11 @@ var SingleRecipeView = Backbone.View.extend({
             // after destroying a model this view publishes recipe:remove event
             vent.trigger("recipe:remove", self.model); 
         });
+    },
+
+    addFav: function(event) {
+        event.preventDefault();
+        $('#list-content li').addClass('favourite');
     }
 
 
@@ -166,6 +171,7 @@ var EditRecipeView = Backbone.View.extend({
     onEdit: function(event){
         event.preventDefault();
         this.model.set({
+            title: this.$("input[name='title']").val(),
             difficulty: this.$("input[name='difficulty']").val(),
             ingredients: this.$("input[name='ingredients']").val()
         }).save();

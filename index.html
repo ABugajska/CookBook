@@ -45,6 +45,7 @@
                     <a href="#add" class="ui button primary">Add new recipe</a>
                     <a href="#edit/<%= id %>"  class="ui button secondary">Edit</a>
                     <button id="remove" class="ui button primary">Delete</button>
+                    <a class="ui button secondary" id="fav" href="#">Favourite</a>
 
                 </div>
 
@@ -54,6 +55,10 @@
 
     <script type="text/template" id="edit-recipe">
         <form>
+            <div class="ui input">
+                <label>Title</label>
+                <input type="text" id="title" name="title" value="<%= title %>" required/>
+            </div>
             <div class="ui input">
                 <label>Difficulty</label>
                 <input type="text" id="difficulty" name="difficulty" value="<%= difficulty %>" required/>
