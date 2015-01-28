@@ -2,7 +2,7 @@ jQuery(function() {
 // CookBook array //
 var recipeStorage = new Backbone.LocalStorage("cookBook");
 // localStorage: Recipestorage
-
+_.extend(Backbone.Model.prototype, Backbone.Validation.mixin);
 
 // MODEL //
 
@@ -20,15 +20,16 @@ var SingleRecipe = Backbone.Model.extend({
             oneOf: ['easy', 'normal', 'hard'],
             msg: 'The dish is easy/normal/hard to make?'
         },
-        igredients: {
+        ingredients: {
             required: true,
             minLength: 3
         }
 
-
     }
+
+
 });
-// _.extend(Backbone.Model.prototype, Backbone.Validation.mixin);
+
 
 
 
@@ -65,7 +66,7 @@ var CookBookView = Backbone.View.extend({
 
         // #1. Destroying a model triggers 'destroy' model on all collections containing this model
         this.collection.bind("destroy", this.onAfterRemove, this);
-        vent.on('recipe:favourite', this.render, this);
+        vent.on('recipe:update', this.render, this);
     },
 
     render: function (eventName) {
@@ -154,7 +155,7 @@ var SingleRecipeView = Backbone.View.extend({
         var itemId = $(event.currentTarget).attr('data-item');
         this.model.set('favourite', !this.model.get('favourite'));
         $.when(this.model.save()).then(function () {
-            vent.trigger("recipe:favourite", this.model);
+            vent.trigger("recipe:update", this.model);
         }.bind(this));
         
 
@@ -202,10 +203,10 @@ var EditRecipeView = Backbone.View.extend({
             title: this.$("input[name='title']").val(),
             difficulty: this.$("input[name='difficulty']").val(),
             ingredients: this.$("input[name='ingredients']").val()
-        }).save();
-    
-        $.when(this.model.save()).then(function () {
-            vent.trigger("recipe:favourite", this.model);
+        });
+        var that = this;
+        $.when(that.model.save()).then(function () {
+              vent.trigger("recipe:update", that.model);
         });
    
    }     
@@ -240,10 +241,16 @@ var AddRecipeView = Backbone.View.extend({
             ingredients: this.$("input[name='ingredients']").val()
         });
         var that = this;
-        $.when(this.model.save()).then(function(){
-            that.collection.add(that.model);
-        });
+        console.log(this.model.validate());
+        if (this.model.isValid()) {
+            $.when(this.model.save()).then(function(){
+                that.collection.add(that.model);
+            });
+        }
     }
+
+
+
 });
 
 
