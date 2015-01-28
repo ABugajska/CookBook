@@ -186,6 +186,16 @@ var EditRecipeView = Backbone.View.extend({
         $(this.el).html(this.template(this.model.toJSON()));
         return this;
     },
+    // onEdit: function(event){
+    //     event.preventDefault();
+    //     this.model.set({
+    //         title: this.$("input[name='title']").val(),
+    //         difficulty: this.$("input[name='difficulty']").val(),
+    //         ingredients: this.$("input[name='ingredients']").val()
+    //     }).save();
+    // }
+
+
     onEdit: function(event){
         event.preventDefault();
         this.model.set({
@@ -193,7 +203,12 @@ var EditRecipeView = Backbone.View.extend({
             difficulty: this.$("input[name='difficulty']").val(),
             ingredients: this.$("input[name='ingredients']").val()
         }).save();
-    }
+    
+        $.when(this.model.save()).then(function () {
+            vent.trigger("recipe:favourite", this.model);
+        });
+   
+   }     
 });
 
 //  ADD ITEM VIEW  //
