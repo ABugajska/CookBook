@@ -225,6 +225,7 @@ var AddRecipeView = Backbone.View.extend({
     template: _.template($('#add-recipe').html()),
 
     initialize: function() {
+        Backbone.Validation.bind(this);
         this.render();
     },
 
@@ -318,3 +319,26 @@ Backbone.history.start();
 
 
 });
+
+
+
+// });
+
+// //  require.js  //
+
+// require.config({
+//     paths: {
+//         jquery: 'bower_components/jquery/dist/jquery',
+//         underscore: 'bower_components/underscore/underscore',
+//         backbone: 'bower_components/backbone/backbone',
+//         localStorage: 'bower_components/backbone.localStorage/backbone.localStorage',
+//         backbone.validation: 'bower_components/backbone-validation/dist/backbone-validation'
+//     }
+
+// });
+// require ([
+//     'app',
+//     ], function(App){
+
+//     App.Initialize();
+// });

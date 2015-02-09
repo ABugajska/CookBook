@@ -29,3 +29,11 @@ li {
 .favourite a{
 	color: red; 
 }
+
+.ui.input input.invalid {
+    border-color: red;
+}
+
+.ui.input input.invalid:focus {
+    border-color: red;
+}
